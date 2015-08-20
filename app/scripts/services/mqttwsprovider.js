@@ -9,9 +9,6 @@
  */
 angular.module('myNewProjectApp')
     .provider('mqttwsProvider', function () {
-        console.log("mqttwsProvider")
-        // Method for instantiating
-
         var host;
         var port;
         var useTLS = false;
@@ -25,13 +22,9 @@ angular.module('myNewProjectApp')
 
         this.$get = function ($q) {
             return function socketFactory (options) {
-                 console.log($q)
-                 console.log("OPTIONS:", options);
-
                  var wrappedSocket = {
                      on: function(event, func) {
                          events[event] = func;
-                         console.log(event, events);
                      },
                      addListener: function() { },
                      subscribe: function(topic, opts) {
@@ -49,17 +42,14 @@ angular.module('myNewProjectApp')
                      },
                      connect: function() {
                         var defer = $q.defer()
-
                         var onSuccess = function() {
                             var ev = events.connected || function() { };
-                            console.log("DEFAULT SUCCESS", arguments);
                             ev.call(null, arguments);
                             defer.resolve(arguments);
                         }
 
                         var onFailure = function (message) {
                             console.log("failed");
-                            setTimeout(MQTTconnect, reconnectTimeout);
                         }
 
                         var options = {
@@ -81,13 +71,9 @@ angular.module('myNewProjectApp')
                             var topic = message.destinationName;
                             var payload = message.payloadString;
                             var ev = events.message || function() { };
+                            var ev2 = events[topic.toString()] || function() { };                            
                             ev.apply(null, [topic, payload, message]);
-
-                            var ev2 = events[topic.toString()] || function() { };
-                            // console.log("EV", ev);
-                            // console.log("EV2", ev2);
                             ev2.apply(null, [payload, message]);
-
                         }
 
                         return defer.promise;
